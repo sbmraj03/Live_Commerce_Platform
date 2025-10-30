@@ -1,4 +1,4 @@
-const { Product } = require('../models');
+const { Product } = require('../models');   // case sensitive during deployment => changed Index.js to index.js
 const { asyncHandler } = require('../middleware');
 const CustomError = require('../utils/CustomError');
 
