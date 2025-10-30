@@ -1,0 +1,44 @@
+# Node modules
+default node_modules/
+client/node_modules/
+server/node_modules/
+
+# Build output
+dist/
+build/
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Environment & config
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Miscellaneous
+coverage/
+next/
+out/
+
+# Ignore all .env files
+*.env
+
+# NPM/Bun pnpm lock files (optionally adapt as needed)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb

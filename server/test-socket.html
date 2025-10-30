@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Socket.io Test</title>
+  <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    .section {
+      margin: 20px 0;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 15px;
+      margin: 5px;
+      cursor: pointer;
+    }
+    #log {
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 5px;
+      max-height: 400px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 12px;
+    }
+    .log-item {
+      padding: 5px 0;
+      border-bottom: 1px solid #ddd;
+    }
+    input {
+      padding: 8px;
+      margin: 5px;
+      width: 200px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔌 Socket.io Connection Test</h1>
+  
+  <div class="section">
+    <h3>Connection Status</h3>
+    <p>Status: <strong id="status">Disconnected</strong></p>
+    <p>Socket ID: <strong id="socketId">-</strong></p>
+  </div>
+
+  <div class="section">
+    <h3>Join Session</h3>
+    <input type="text" id="sessionId" placeholder="Session ID">
+    <input type="text" id="userName" placeholder="Your Name" value="Test User">
+    <button onclick="joinSession()">Join Session</button>
+    <button onclick="leaveSession()">Leave Session</button>
+  </div>
+
+  <div class="section">
+    <h3>Send Reaction</h3>
+    <button onclick="sendReaction('like')">❤️ Like</button>
+    <button onclick="sendReaction('love')">😍 Love</button>
+    <button onclick="sendReaction('fire')">🔥 Fire</button>
+    <button onclick="sendReaction('clap')">👏 Clap</button>
+    <button onclick="sendReaction('wow')">😮 Wow</button>
+    <button onclick="sendReaction('laugh')">😂 Laugh</button>
+  </div>
+
+  <div class="section">
+    <h3>Send Question</h3>
+    <input type="text" id="question" placeholder="Ask a question..." style="width: 400px;">
+    <button onclick="sendQuestion()">Send Question</button>
+  </div>
+
+  <div class="section">
+    <h3>Event Log</h3>
+    <button onclick="clearLog()">Clear Log</button>
+    <div id="log"></div>
+  </div>
+
+  <script>
+    const socket = io('http://localhost:5000');
+    let currentSessionId = null;
+
+    socket.on('connect', () => {
+      document.getElementById('status').textContent = 'Connected';
+      document.getElementById('socketId').textContent = socket.id;
+      addLog('✅ Connected to server');
+    });
+
+    socket.on('disconnect', () => {
+      document.getElementById('status').textContent = 'Disconnected';
+      addLog('❌ Disconnected from server');
+    });
+
+    socket.on('session:joined', (data) => {
+      addLog('✅ Joined session: ' + data.sessionId);
+      addLog('Viewer count: ' + data.viewerCount);
+    });
+
+    socket.on('viewers:update', (data) => {
+      addLog('👥 Viewer count: ' + data.count + ' (Peak: ' + data.peakViewers + ')');
+    });
+
+    socket.on('reaction:new', (data) => {
+      addLog(`❤️ ${data.userName} reacted with ${data.type}`);
+    });
+
+    socket.on('question:new', (data) => {
+      addLog(`❓ ${data.userName} asked: "${data.question}"`);
+    });
+
+    socket.on('question:answered', (data) => {
+      addLog(`✅ Question answered: "${data.question}" - ${data.answer}`);
+    });
+
+    socket.on('session:started', (data) => {
+      addLog(`🎥 Session started: ${data.title}`);
+    });
+
+    socket.on('session:ended', (data) => {
+      addLog(`🛑 Session ended: ${data.title}`);
+    });
+
+    socket.on('error', (data) => {
+      addLog('⚠️ Error: ' + data.message);
+    });
+
+    function joinSession() {
+      const sessionId = document.getElementById('sessionId').value;
+      const userName = document.getElementById('userName').value;
+      
+      if (!sessionId) {
+        alert('Please enter a session ID');
+        return;
+      }
+
+      currentSessionId = sessionId;
+      socket.emit('join:session', { sessionId, userName });
+    }
+
+    function leaveSession() {
+      if (!currentSessionId) {
+        alert('Not in a session');
+        return;
+      }
+
+      socket.emit('leave:session', { sessionId: currentSessionId });
+      currentSessionId = null;
+    }
+
+    function sendReaction(type) {
+      if (!currentSessionId) {
+        alert('Join a session first');
+        return;
+      }
+
+      const userName = document.getElementById('userName').value;
+      socket.emit('reaction:send', {
+        sessionId: currentSessionId,
+        type,
+        userName
+      });
+    }
+
+    function sendQuestion() {
+      if (!currentSessionId) {
+        alert('Join a session first');
+        return;
+      }
+
+      const question = document.getElementById('question').value;
+      if (!question) {
+        alert('Please enter a question');
+        return;
+      }
+
+      const userName = document.getElementById('userName').value;
+      socket.emit('question:send', {
+        sessionId: currentSessionId,
+        question,
+        userName
+      });
+
+      document.getElementById('question').value = '';
+    }
+
+    function addLog(message) {
+      const log = document.getElementById('log');
+      const item = document.createElement('div');
+      item.className = 'log-item';
+      item.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      log.insertBefore(item, log.firstChild);
+    }
+
+    function clearLog() {
+      document.getElementById('log').innerHTML = '';
+    }
+  </script>
+</body>
+</html>
