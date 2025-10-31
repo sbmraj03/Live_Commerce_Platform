@@ -1,5 +1,5 @@
 // Viewer entry: join a live session and see stream/products/Q&A
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
 import LiveSessionViewer from '../../components/viewer/LiveSessionViewer';
@@ -12,11 +12,17 @@ const ViewerPage = () => {
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState('');
   const [hasJoined, setHasJoined] = useState(false);
+  const isInitialLoad = useRef(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Fetch live session
   const fetchLiveSession = async () => {
     try {
-      setLoading(true);
+      if (isInitialLoad.current) {
+        setLoading(true);
+      } else {
+        setRefreshing(true);
+      }
       const response = await api.get('/api/sessions/live/current');
       setLiveSession(response.data.data);
     } catch (error) {
@@ -26,13 +32,15 @@ const ViewerPage = () => {
       setLiveSession(null);
     } finally {
       setLoading(false);
+      setRefreshing(false);
+      isInitialLoad.current = false;
     }
   };
 
   useEffect(() => {
     fetchLiveSession();
 
-    // Poll for live session every 30 seconds
+    // Poll for live session every 30 seconds without blocking UI
     const interval = setInterval(fetchLiveSession, 30000);
 
     return () => clearInterval(interval);
@@ -155,6 +163,10 @@ const ViewerPage = () => {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Optional subtle refresh indicator */}
+        {refreshing && (
+          <div className="text-xs text-gray-400 mb-2">Updating…</div>
+        )}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Live Stream & Products */}
           <div className="lg:col-span-2 space-y-6">
