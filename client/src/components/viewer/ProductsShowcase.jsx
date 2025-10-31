@@ -67,7 +67,7 @@ const ProductsShowcase = ({ products, highlightedProductId }) => {
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-2xl font-bold text-purple-600">
-                        ${product.price.toFixed(2)}
+                       ₹{product.price.toFixed(2)}
                       </span>
                     </div>
                     <div className="text-sm">

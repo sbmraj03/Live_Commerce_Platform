@@ -35,4 +35,14 @@ api.interceptors.response.use(
   }
 );
 
+// --- AI Recommendations Admin API ---
+export const generateProductRecommendations = (productId) =>
+  api.post(`/api/admin/products/${productId}/generate-recommendations`);
+
+export const getAIRecommendationsSetting = () =>
+  api.get('/api/admin/settings/ai-recommendations');
+
+export const toggleAIRecommendations = (enabled) =>
+  api.post('/api/admin/settings/ai-recommendations/toggle', { enabled });
+
 export default api;

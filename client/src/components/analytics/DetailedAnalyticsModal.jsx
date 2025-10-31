@@ -27,7 +27,7 @@ const DetailedAnalyticsModal = ({ isOpen, onClose, sessionId }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-slate-500 bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 bg-white border-b z-10 flex items-center justify-between p-6">
@@ -114,19 +114,21 @@ const DetailedAnalyticsModal = ({ isOpen, onClose, sessionId }) => {
               {Object.keys(analytics.engagement.reactionBreakdown).length > 0 && (
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h5 className="font-semibold text-gray-700 mb-3">Reaction Breakdown</h5>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-4 gap-3">
                     {Object.entries(analytics.engagement.reactionBreakdown).map(([type, count]) => {
                       const emojis = {
-                        like: '❤️',
-                        love: '😍',
+                        love: '❤️',
                         fire: '🔥',
-                        clap: '👏',
+                        best: '👌',
+                        laugh: '😂',
                         wow: '😮',
-                        laugh: '😂'
+                        disagree: '👎',
+                        angry: '😠',
+                        cry: '😭'
                       };
                       return (
                         <div key={type} className="bg-white p-3 rounded text-center">
-                          <div className="text-2xl mb-1">{emojis[type] || '👍'}</div>
+                          <div className="text-2xl mb-1">{emojis[type]}</div>
                           <div className="text-lg font-bold text-gray-800">{count}</div>
                           <div className="text-xs text-gray-600 capitalize">{type}</div>
                         </div>

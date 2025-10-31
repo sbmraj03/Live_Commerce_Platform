@@ -19,7 +19,7 @@ const server = http.createServer(app);
 // Initialize Socket.io for realtime updates
 const io = new Server(server, {
   cors: {
-    origin: [process.env.CLIENT_URL || 'http://localhost:5173', 'http://127.0.0.1:3000'],
+    origin: [process.env.CLIENT_URL, 'http://localhost:5173', 'http://127.0.0.1:3000'],
     methods: ['GET', 'POST'],
     credentials: true
   }
@@ -35,7 +35,7 @@ app.set('socketService', socketService);
 
 // Core middleware
 app.use(cors({
-  origin: [process.env.CLIENT_URL || 'http://localhost:5173', 'http://127.0.0.1:3000'],
+  origin: [process.env.CLIENT_URL, 'http://localhost:5173', 'http://127.0.0.1:3000'],
   credentials: true
 }));
 app.use(express.json());
@@ -48,7 +48,6 @@ app.get('/', (req, res) => {
     message: 'Live Commerce Platform API',
     status: 'Running',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV
   });
 });
 

@@ -147,7 +147,7 @@ const LiveControlPanel = ({ session }) => {
                   />
                   <div className="flex-1">
                     <h4 className="font-semibold text-gray-800">{product.name}</h4>
-                    <p className="text-purple-600 font-bold">${product.price.toFixed(2)}</p>
+                    <p className="text-purple-600 font-bold">₹{product.price.toFixed(2)}</p>
                   </div>
                   <button
                     onClick={() =>

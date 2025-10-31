@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
+import generateProductRecommendations from '../../services/api';
 
-const ProductFormModal = ({ isOpen, onClose, onSubmit, product, isLoading }) => {
+const ProductFormModal = ({ isOpen, onClose, onSubmit, product, isLoading, aiRecommendationsEnabled }) => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -11,6 +12,9 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, product, isLoading }) => 
   });
 
   const [errors, setErrors] = useState({});
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState('');
+  const [recommendations, setRecommendations] = useState([]);
 
   const categories = ['Electronics', 'Fashion', 'Home', 'Beauty', 'Sports', 'Books', 'Other'];
 
@@ -36,6 +40,12 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, product, isLoading }) => 
     }
     setErrors({});
   }, [product, isOpen]);
+
+  useEffect(() => {
+    setRecommendations([]);
+    setAiError('');
+    setAiLoading(false);
+  }, [isOpen, product]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -91,10 +101,31 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, product, isLoading }) => 
     }
   };
 
+  const handleAIRecommend = async () => {
+    if (!product?._id) {
+      setAiError('Save product first to get recommendations.');
+      return;
+    }
+    setAiLoading(true);
+    setAiError('');
+    try {
+      const { data } = await generateProductRecommendations(product._id);
+      if (Array.isArray(data.data)) {
+        setRecommendations(data.data);
+      } else {
+        setAiError('AI did not return valid recommendations.');
+      }
+    } catch (err) {
+      setAiError('AI Recommendation failed. Try again later.');
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-slate-500 bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
@@ -250,6 +281,8 @@ const ProductFormModal = ({ isOpen, onClose, onSubmit, product, isLoading }) => 
               </div>
             )}
           </div>
+
+         
 
           {/* Action Buttons */}
           <div className="flex gap-3 justify-end">

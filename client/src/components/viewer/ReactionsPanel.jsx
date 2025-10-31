@@ -8,12 +8,15 @@ const ReactionsPanel = ({ sessionId, userName }) => {
   const [isAnimating, setIsAnimating] = useState(false);
 
   const reactions = [
-    { type: 'like', emoji: '❤️', label: 'Like' },
-    { type: 'love', emoji: '😍', label: 'Love' },
-    { type: 'fire', emoji: '🔥', label: 'Fire' },
-    { type: 'clap', emoji: '👏', label: 'Clap' },
-    { type: 'wow', emoji: '😮', label: 'Wow' },
-    { type: 'laugh', emoji: '😂', label: 'Laugh' }
+    { type: 'love', emoji: '❤️', label: 'love' },
+    { type: 'fire', emoji: '🔥', label: 'fire' },
+    { type: 'best', emoji: '👌', label: 'best' },
+    { type: 'laugh', emoji: '😂', label: 'laugh' },
+    { type: 'wow', emoji: '😮', label: 'wow' },
+    { type: 'disagree', emoji: '👎', label: 'disagree' },
+    { type: 'angry', emoji: '😠', label: 'angry' },
+    { type: 'cry', emoji: '😭', label: 'cry' },
+    
   ];
 
   const fetchReactions = async () => {
@@ -76,7 +79,7 @@ const ReactionsPanel = ({ sessionId, userName }) => {
 
       {/* Reaction Buttons */}
       <div className="p-4">
-        <div className="grid grid-cols-3 gap-3 mb-4">
+        <div className="grid grid-cols-4 gap-3 mb-4">
           {reactions.map((reaction) => (
             <button
               key={reaction.type}

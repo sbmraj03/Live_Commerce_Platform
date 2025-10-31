@@ -11,7 +11,7 @@ const reactionSchema = new mongoose.Schema(
     type: {
       type: String,
       required: [true, 'Reaction type is required'],
-      enum: ['like', 'love', 'fire', 'clap', 'wow', 'laugh']
+      enum: ['like', 'love', 'fire', 'clap', 'wow', 'laugh', 'best', 'disagree', 'angry', 'cry' ]
     },
     userId: {
       type: String, // For now, we'll use socket ID or a simple identifier

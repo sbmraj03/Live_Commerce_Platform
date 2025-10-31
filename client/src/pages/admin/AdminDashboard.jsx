@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import api from '../../services/api';
 import ProductCard from '../../components/admin/ProductCard';
 import ProductFormModal from '../../components/admin/ProductFormModal';
+import getAIRecommendationsSetting from '../../services/api';
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
@@ -15,6 +16,8 @@ const AdminDashboard = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filter, setFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [aiRecommendationsEnabled, setAIRecommendationsEnabled] = useState(true);
+  const [aiLoading, setAILoading] = useState(false);
 
   // Fetch products
   const fetchProducts = async () => {
@@ -33,6 +36,33 @@ const AdminDashboard = () => {
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  // Fetch AI recommendation settings on mount
+  useEffect(() => {
+    (async () => {
+      try {
+        setAILoading(true);
+        const { data } = await getAIRecommendationsSetting();
+        setAIRecommendationsEnabled(!!data.data.aiRecommendationsEnabled);
+      } catch (err) {
+        setAIRecommendationsEnabled(true); // fallback
+      } finally {
+        setAILoading(false);
+      }
+    })();
+  }, []);
+
+  const handleAIFeatureToggle = async (val) => {
+    try {
+      setAILoading(true);
+      await toggleAIRecommendations(val);
+      setAIRecommendationsEnabled(val);
+    } catch (err) {
+      alert('Failed to update AI recommendation setting');
+    } finally {
+      setAILoading(false);
+    }
+  };
 
   // Handle Add Product
   const handleAddProduct = async (formData) => {
@@ -117,7 +147,7 @@ const AdminDashboard = () => {
               <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
               <p className="text-gray-600 mt-1">Welcome, {user?.name}</p>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col lg:flex-row items-end lg:items-center gap-4">
               <Link
                 to="/"
                 className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
@@ -301,6 +331,7 @@ const AdminDashboard = () => {
         onSubmit={selectedProduct ? handleEditProduct : handleAddProduct}
         product={selectedProduct}
         isLoading={isSubmitting}
+        aiRecommendationsEnabled={aiRecommendationsEnabled}
       />
     </div>
   );

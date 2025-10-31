@@ -91,7 +91,7 @@ const SessionFormModal = ({ isOpen, onClose, onSubmit, session, products, isLoad
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-slate-400 bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b sticky top-0 bg-white z-10">
@@ -227,7 +227,7 @@ const SessionFormModal = ({ isOpen, onClose, onSubmit, session, products, isLoad
                     >
                       <div className="font-semibold text-gray-800">{product.name}</div>
                       <div className="text-sm text-gray-600">
-                        ${product.price.toFixed(2)} • Stock: {product.stock}
+                       ₹{product.price.toFixed(2)} • Stock: {product.stock}
                       </div>
                     </label>
                     <span className="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded">
