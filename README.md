@@ -1,10 +1,6 @@
 # Live Commerce Platform
 
-Minimal yet functional live commerce feature enabling real-time product showcases, reactions, and Q&A between hosts and viewers.
-
-## Overview
-
-This monorepo contains a React frontend (Vite + Tailwind CSS) and a Node.js/Express backend using Socket.io and MongoDB. Admins can create products and run live sessions. Viewers can join a live session, see highlighted products in real-time, send reactions, and submit questions. The system tracks live analytics (viewer counts, reactions, questions).
+This project is a simple live commerce app. It lets hosts show products in real time, and lets viewers react and ask questions. It has a React frontend and a Node.js/Express backend with Socket.io and MongoDB. Admins can create products, run live sessions, highlight a product, and see basic live analytics (viewer counts, reactions, questions). The analytics page also has an “Ask AI” button that gives a short summary of how the session is going based on reactions and questions.
 
 ## Tech Stack
 
@@ -13,6 +9,7 @@ This monorepo contains a React frontend (Vite + Tailwind CSS) and a Node.js/Expr
 - WebSockets: Socket.io 4
 - Database: MongoDB (Mongoose 8)
 - Auth: JWT (stateless, stored client-side)
+- Generative AI: Google Gemini (server-side REST)
 
 ## Repository Structure
 
@@ -20,9 +17,8 @@ This monorepo contains a React frontend (Vite + Tailwind CSS) and a Node.js/Expr
 live-commerce-platform/
   client/           # React app (Vite + Tailwind)
   server/           # Express API + Socket.io + MongoDB models
-  backend/          # Legacy scaffold (no app code used)
   .gitignore
-  README.md         # You are here
+  README.md    
 ```
 
 ## Core Features
@@ -34,11 +30,13 @@ live-commerce-platform/
 - Viewer
   - Join current live session
   - See product list and highlighted product in real-time
-  - Send reactions (like/love/fire/clap/wow/laugh)
+  - Send reactions (like/love/fire/clap/wow/laugh/best/disagree/angry/cry)
   - Submit questions and see answers live
 - Live Analytics
   - Real-time viewer count and peak viewers
   - Reaction and question counts
+- AI
+  - One-click “Ask AI” session summary (audience mood)
 
 ## Realtime Events (Socket.io)
 
@@ -66,7 +64,6 @@ live-commerce-platform/
 
 ## Getting Started
 
-Prerequisites: Node.js 18+, MongoDB 6+, pnpm/npm, and two terminals.
 
 ### 1) Server setup
 
@@ -78,6 +75,8 @@ MONGO_URI=mongodb://localhost:27017/live-commerce
 JWT_SECRET=supersecret
 JWT_EXPIRE=7d
 CLIENT_URL=http://localhost:5173
+# Optional (required for AI features)
+GEMINI_API_KEY=your_gemini_api_key
 ```
 
 Install & run:
@@ -127,59 +126,20 @@ Open `http://localhost:5173` in your browser.
 Base URL: `${API_URL}/api`
 
 - Auth: `POST /auth/register`, `POST /auth/login`, `GET /auth/me`, `PUT /auth/profile`, `PUT /auth/password`
-- Products: `GET /products`, `GET /products/:id`, `GET /products/category/:category`, (admin) `POST/PUT/DELETE`
 - Sessions:
   - Public: `GET /sessions`, `GET /sessions/:id`, `GET /sessions/live/current`
   - Admin: `POST /sessions`, `PUT /sessions/:id`, `PUT /sessions/:id/start`, `PUT /sessions/:id/end`, `DELETE /sessions/:id`
   - Session data: `GET /sessions/:id/questions`, `GET /sessions/:id/reactions`
+- Analytics:
+  - `GET /analytics/session/:id`
+  - `GET /analytics/session/:id/realtime`
+  - `POST /analytics/session/:id/insight` (AI summary)
 
-Friendly error handling returns `{ success: false, error: string }` with HTTP codes.
+- Socket.io CORS is configured to allow `CLIENT_URL`
 
-## Frontend Highlights
-
-- `ViewerPage` composes live viewer header, product showcase, reactions, and Q&A.
-- `ProductsShowcase` subscribes to `product:highlighted` and renders the highlighted product with yellow background.
-- `LiveSessionViewer` shows live badge and viewer/peak counts via `viewers:update`.
-- `ReactionsPanel` emits `reaction:send` and streams `reaction:new`.
-- `QuestionsPanel` fetches history and updates via `question:new`, `question:answered`, `question:liked`.
-
-## Backend Highlights
-
-- `SocketService` manages room joins/leaves, viewer counts, and all realtime events.
-- Product highlight persists on the `Session` document, preventing client auto-reset.
-- Clean separation of controllers, models, routes, and middleware with helpful indexes.
-
-## Deployment
-
-- Frontend: Vercel/Netlify (build with `npm run build` in `client/`)
-- Backend: Render/Railway/Heroku/VM
-  - Set `CLIENT_URL` to your deployed frontend origin
-  - Set `MONGO_URI`, `JWT_*`, and open port
-- Socket.io CORS is configured to allow `CLIENT_URL` and `http://127.0.0.1:3000` (adjust in `server/src/server.js`).
-
-## Demo Checklist
-
-- Record a 2–5 minute video covering:
-  - Admin login, start session, highlight product
-  - Viewer join, live highlight, reactions, questions
-  - Live counts and quick technical walk-through
 
 ## Improvements
 
-- Authentication UI polish; password reset flow
-- Persist reactions/questions in analytics aggregates
-- Moderation and spam control in Q&A
-- Video streaming integration (currently a placeholder)
-- Better admin dashboards and product management UX
-- E2E tests and CI workflows
-
-## Innovation Ideas
-
-- AI product summaries and Q&A suggestions
-- Sentiment analysis over reactions/questions
-- Personalized recommendations during live sessions
-
----
-
-
-
+1) Add video streaming integration (right now it is a placeholder).
+2) Let viewers add products to cart during a live session (button is dummy now).
+3) More AI insight: allow AI to also answer viewer questions.

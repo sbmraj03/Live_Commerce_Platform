@@ -4,10 +4,15 @@ import api from '../../services/api';
 const DetailedAnalyticsModal = ({ isOpen, onClose, sessionId }) => {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiInsight, setAiInsight] = useState('');
+  const [aiError, setAiError] = useState('');
 
   useEffect(() => {
     if (isOpen && sessionId) {
       fetchAnalytics();
+      setAiInsight('');
+      setAiError('');
     }
   }, [isOpen, sessionId]);
 
@@ -24,6 +29,21 @@ const DetailedAnalyticsModal = ({ isOpen, onClose, sessionId }) => {
     }
   };
 
+  const askAI = async () => {
+    if (!sessionId) return;
+    setAiLoading(true);
+    setAiError('');
+    try {
+      const response = await api.post(`/api/analytics/session/${sessionId}/insight`);
+      setAiInsight(response.data?.data?.insight || '');
+    } catch (err) {
+      console.error('AI insight error:', err);
+      setAiError('Failed to get AI insight.');
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -32,12 +52,21 @@ const DetailedAnalyticsModal = ({ isOpen, onClose, sessionId }) => {
         {/* Header */}
         <div className="sticky top-0 bg-white border-b z-10 flex items-center justify-between p-6">
           <h2 className="text-2xl font-bold text-gray-800">Detailed Analytics</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-2xl"
-          >
-            ×
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={askAI}
+              className="px-4 py-2 w-30 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:opacity-60"
+              disabled={aiLoading}
+            >
+              {aiLoading ? 'Asking AI…' : 'Ask AI'}
+            </button>
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700 text-2xl"
+            >
+              ×
+            </button>
+          </div>
         </div>
 
         {/* Content */}
@@ -50,6 +79,14 @@ const DetailedAnalyticsModal = ({ isOpen, onClose, sessionId }) => {
           </div>
         ) : analytics ? (
           <div className="p-6 space-y-6">
+            {/* AI Insight (if any) */}
+            {(aiInsight || aiError) && (
+              <div className={`p-4 rounded-lg ${aiError ? 'bg-red-50 border border-red-200' : 'bg-green-50 border border-green-200'}`}>
+                <h4 className="font-semibold mb-1">AI Summary</h4>
+                <p className="text-sm text-gray-800 whitespace-pre-line">{aiError || aiInsight}</p>
+              </div>
+            )}
+
             {/* Session Info */}
             <div className="bg-linear-to-r from-purple-600 to-blue-600 rounded-lg p-6 text-white">
               <h3 className="text-2xl font-bold mb-2">{analytics.session.title}</h3>
